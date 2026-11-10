@@ -1,109 +1,176 @@
-# CampusFix — MERN Campus Issue Reporting Platform
+# CampusFix – Campus Issue Reporting Platform
 
-A portfolio-ready MERN starter application for reporting campus maintenance issues, supporting issues with likes, and managing assignments/statuses.
+CampusFix is a MERN stack web application that helps students report campus maintenance issues and track their progress. Admins can assign issues to staff, manage priorities, and monitor resolutions.
 
-## Stack
-- **MongoDB** — database
-- **Express + Node.js** — REST API
-- **React + Vite** — frontend
-- **Mongoose** — MongoDB object modeling
-- **JWT + bcryptjs** — authentication and password hashing
+## Tech Stack
 
-## Features included
-- Student registration and login
-- JWT-protected routes
-- Create and browse campus issues
-- Search by title, description, or location
-- Filter by category and status
-- Like/unlike an issue (one like per user; users cannot like their own issue)
-- Community ranking: Critical issues are pinned first, then issues are sorted by like count, then newest
-- Admin can create staff accounts, assign issues, and set actual priority
-- Staff/admin can update issue status
-- Responsive React interface
+- **Frontend:** React, Vite
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB, Mongoose
+- **Authentication:** JWT, bcryptjs
 
-## Requirements
-- Node.js 18 or newer
-- MongoDB Community Server running locally, or a MongoDB Atlas connection string
+## Features
 
-## 1. Configure the backend
+- Student registration and login.
+- Secure authentication with JWT.
+- Report and browse campus issues.
+- Search issues by title, description, or location.
+- Filter issues by category and status.
+- Like and unlike issues (one like per user).
+- Rank issues based on priority, likes, and submission date.
+- Admin can create staff accounts and assign issues.
+- Staff and admins can update issue statuses.
+- Responsive user interface.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or later
+- MongoDB Community Server or MongoDB Atlas
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Aman-ai300/CampusFix.git
+cd CampusFix
+```
+
+### 2. Set up the backend
+
 ```bash
 cd backend
-cp .env.example .env
-```
-Edit `backend/.env` and set a strong unique `JWT_SECRET`, your `MONGO_URI`, and a strong `ADMIN_PASSWORD` (do not use the example password).
-
-Install and start the API:
-```bash
 npm install
+```
+
+Create a `.env` file using `.env.example` as a reference.
+
+Configure the following environment variables:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_strong_secret
+CLIENT_URL=http://localhost:5173
+ADMIN_NAME=Campus Admin
+ADMIN_EMAIL=admin@college.edu
+ADMIN_PASSWORD=your_strong_password
+```
+
+Start the backend:
+
+```bash
 npm run dev
 ```
-The API runs at `http://localhost:5000`. Health check: `http://localhost:5000/api/health`.
 
-## 2. Create the first admin
-In a second terminal:
+The API runs at `http://localhost:5000`.
+
+Health check: `http://localhost:5000/api/health`
+
+### 3. Create the admin account
+
+Open another terminal:
+
 ```bash
 cd backend
 npm run seed:admin
 ```
-The script creates the admin from `ADMIN_NAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in `.env`. It will refuse the example password. Keep the admin credentials private.
 
-## 3. Configure and start the frontend
-In a third terminal:
+This creates the initial admin account using the credentials configured in `.env`.
+
+### 4. Set up the frontend
+
+Open another terminal:
+
 ```bash
 cd frontend
-cp .env.example .env
 npm install
+```
+
+Create a `.env` file using `.env.example` and configure:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
-Open `http://localhost:5173`.
 
-## 4. Add staff
-Register a normal student account first only if you want to test the student flow. Sign in with the seeded admin credentials. Staff creation is exposed through `POST /api/users/staff` and is admin-only. Example request body:
-```json
-{"name":"Facilities Team","email":"facilities@college.edu","password":"UseAUniquePassword123"}
-```
-Use an API client such as Postman with the admin JWT in `Authorization: Bearer <token>`. The admin can then assign issues to the new staff account from an issue detail page.
+Open `http://localhost:5173` in your browser.
 
-## API overview
-| Method | Endpoint | Access | Purpose |
-|---|---|---|---|
-| POST | `/api/auth/register` | Public | Register student |
-| POST | `/api/auth/login` | Public | Login |
-| GET | `/api/auth/me` | Signed in | Current user |
-| GET | `/api/issues` | Signed in | List, search, filter, rank issues |
-| POST | `/api/issues` | Student/admin | Create issue |
-| GET | `/api/issues/:id` | Signed in | Issue detail |
-| POST | `/api/issues/:id/like` | Signed in | Toggle like |
-| PATCH | `/api/issues/:id/status` | Staff/admin | Update status |
-| PATCH | `/api/issues/:id/assign` | Admin | Assign staff |
-| PATCH | `/api/issues/:id/priority` | Admin | Set actual urgency |
-| GET | `/api/users/staff` | Admin | List staff |
-| POST | `/api/users/staff` | Admin | Create staff account |
+## User Roles
 
-## Like and ranking logic
-The `likes` field is an array of user ObjectIds on each Issue document. The API uses MongoDB `$addToSet` to add a user only once and `$pull` to remove a like. The list endpoint calculates `likeCount` using `$size` in an aggregation pipeline. Ranking is:
-1. Critical priority first (safety must not be buried by popularity)
-2. Highest like count
-3. Newest issue as tie-breaker
+| Role | Responsibilities |
+|---|---|
+| Student | Report issues, browse reports, and like issues |
+| Staff | View assigned issues and update their status |
+| Admin | Manage staff, assign issues, and control priorities |
 
-Likes represent community support, not verified severity. Admin-controlled priority remains separate. This helps prevent a popular but low-risk issue from outranking a safety-critical report.
+## Issue Ranking
 
-## Important production improvements before public deployment
-This is an MVP starter, not a hardened production service. Before deploying publicly, add rate limiting, email verification, password reset, request validation (for example Zod/Joi), audit logs, pagination, image upload with safe file validation, automated tests, and stricter CORS/security headers. For high traffic, consider a separate Like collection with a unique compound index on `{ issueId, userId }` rather than embedding every liker in the issue document.
+CampusFix uses the following ranking order:
 
-## Project structure
+1. Critical-priority issues appear first.
+2. Issues with more likes appear next.
+3. Newer issues come before older issues when likes are equal.
+
+Likes represent community support, while actual issue priority is controlled by the admin. This ensures that important safety-related issues are not overlooked simply because they receive fewer likes.
+
+## API Overview
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/auth/register` | Register a student |
+| POST | `/api/auth/login` | User login |
+| GET | `/api/auth/me` | Get current user |
+| GET | `/api/issues` | Browse and filter issues |
+| POST | `/api/issues` | Create an issue |
+| GET | `/api/issues/:id` | View issue details |
+| POST | `/api/issues/:id/like` | Like or unlike an issue |
+| PATCH | `/api/issues/:id/status` | Update issue status |
+| PATCH | `/api/issues/:id/assign` | Assign staff to an issue |
+| PATCH | `/api/issues/:id/priority` | Update issue priority |
+| GET | `/api/users/staff` | List staff accounts |
+| POST | `/api/users/staff` | Create staff accounts |
+
+## Project Structure
+
 ```text
-campusfix-mern/
-  backend/
-    scripts/seedAdmin.js
-    src/config/db.js
-    src/middleware/auth.js
-    src/models/{User,Issue}.js
-    src/routes/{auth,issues,users}.js
-    src/server.js
-  frontend/
-    src/components/{Layout,ProtectedRoute}.jsx
-    src/context/AuthContext.jsx
-    src/pages/{AuthPage,Dashboard,ReportIssue,IssueDetail}.jsx
-    src/{api.js,main.jsx,styles.css}
+CampusFix/
+├── backend/
+│   ├── scripts/
+│   │   └── seedAdmin.js
+│   └── src/
+│       ├── config/
+│       ├── middleware/
+│       ├── models/
+│       ├── routes/
+│       └── server.js
+│
+├── frontend/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── pages/
+│       ├── api.js
+│       ├── main.jsx
+│       └── styles.css
+│
+├── .gitignore
+└── README.md
 ```
+
+## Future Improvements
+
+- Email verification and password reset.
+- Image uploads for issue reports.
+- Pagination and request validation.
+- Automated testing and audit logs.
+- Rate limiting and additional security measures.
+
+---
+
+**CampusFix** – Making campus issue reporting simpler and more organized.
