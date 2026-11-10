@@ -1,10 +1,146 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
 export default function AuthPage({ mode }) {
-  const isRegister = mode === "register"; const { login, register } = useAuth(); const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" }); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
-  const change = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const submit = async e => { e.preventDefault(); setError(""); setBusy(true); try { if (isRegister) await register(form); else await login({ email: form.email, password: form.password }); navigate("/"); } catch (err) { setError(err.response?.data?.message || "Something went wrong"); } finally { setBusy(false); } };
-  return <div className="auth-layout"><section className="auth-story"><div className="eyebrow">YOUR CAMPUS, IMPROVED</div><h1>Small reports.<br/><em>Real change.</em></h1><p>Spot a problem, bring your campus community together, and help get it fixed.</p><div className="story-note">“The issues that matter most should never get lost in the noise.”</div></section><section className="auth-card"><div className="eyebrow">CAMPUSFIX ACCOUNT</div><h2>{isRegister ? "Join your campus" : "Welcome back"}</h2><p className="muted">{isRegister ? "Create a student account to report and support issues." : "Sign in to see what needs fixing."}</p><form onSubmit={submit} className="form-stack">{isRegister && <label>Full name<input name="name" value={form.name} onChange={change} required maxLength="80" placeholder="Your name"/></label>}<label>Email address<input type="email" name="email" value={form.email} onChange={change} required placeholder="you@college.edu"/></label><label>Password<input type="password" name="password" value={form.password} onChange={change} required minLength="8" placeholder="At least 8 characters"/></label>{error && <div className="alert">{error}</div>}<button className="button button-primary button-full" disabled={busy}>{busy ? "Please wait…" : isRegister ? "Create account" : "Sign in"}</button></form><p className="auth-switch">{isRegister ? "Already registered?" : "New to CampusFix?"} <Link to={isRegister ? "/login" : "/register"}>{isRegister ? "Sign in" : "Create an account"}</Link></p></section></div>;
+  const isRegister = mode === "register";
+
+  const { login, register } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
+
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const change = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+
+    try {
+      if (isRegister) {
+        await register(form);
+      } else {
+        await login({
+          email: form.email,
+          password: form.password
+        });
+      }
+
+      navigate("/");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Something went wrong"
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="auth-layout">
+      <section className="auth-card">
+
+        <div className="eyebrow">
+          CAMPUSFIX ACCOUNT
+        </div>
+
+        <h2>
+          {isRegister ? "Join your campus" : "Welcome back"}
+        </h2>
+
+        <p className="muted">
+          {isRegister
+            ? "Create a student account to report and support issues."
+            : "Sign in to see what needs fixing."}
+        </p>
+
+        <form onSubmit={submit} className="form-stack">
+
+          {isRegister && (
+            <label>
+              Full name
+              <input
+                name="name"
+                value={form.name}
+                onChange={change}
+                required
+                maxLength="80"
+                placeholder="Your name"
+              />
+            </label>
+          )}
+
+          <label>
+            Email address
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={change}
+              required
+              placeholder="you@college.edu"
+            />
+          </label>
+
+          <label>
+            Password
+            <input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={change}
+              required
+              minLength="8"
+              placeholder="At least 8 characters"
+            />
+          </label>
+
+          {error && (
+            <div className="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="button button-primary button-full"
+            disabled={busy}
+          >
+            {busy
+              ? "Please wait..."
+              : isRegister
+                ? "Create account"
+                : "Sign in"}
+          </button>
+
+        </form>
+
+        <p className="auth-switch">
+          {isRegister
+            ? "Already registered?"
+            : "New to CampusFix?"}
+
+          {" "}
+
+          <Link to={isRegister ? "/login" : "/register"}>
+            {isRegister ? "Sign in" : "Create an account"}
+          </Link>
+        </p>
+
+      </section>
+    </div>
+  );
 }

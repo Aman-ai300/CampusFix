@@ -25,9 +25,9 @@ router.post("/login", async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password");
     if (!user || !(await bcrypt.compare(req.body.password || "", user.password)))
       return res.status(401).json({ message: "Invalid email or password" });
-    res.json({ token: makeToken(user.id), user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    res.json({ token: makeToken(user.id), user: { id: user.id, name: user.name, email: user.email, role:user.role } });
   } catch (err) { next(err); }
 });
 
-router.get("/me", protect, (req, res) => res.json({ user: { id: req.user.id, name: req.user.name, email: req.user.email, role: req.user.role } }));
+router.get("/me", protect, (req, res) => res.json({ user: { id: req.user.id, name: req.user.name, email:req.user.email, role: req.user.role } }));
 export default router;

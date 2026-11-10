@@ -69,7 +69,7 @@ router.patch("/:id/status", protect, allowRoles("staff", "admin"), async (req, r
   try {
     const allowed = ["Open", "Assigned", "In Progress", "Resolved", "Rejected"];
     if (!allowed.includes(req.body.status)) return res.status(400).json({ message: "Invalid status" });
-    const issue = await Issue.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true, runValidators: true }).populate("createdBy", "name").populate("assignedTo", "name email");
+    const issue = await Issue.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true,runValidators: true }).populate("createdBy", "name").populate("assignedTo", "name email");
     if (!issue) return res.status(404).json({ message: "Issue not found" });
     res.json({ issue });
   } catch (err) { next(err); }
