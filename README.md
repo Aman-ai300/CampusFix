@@ -84,3 +84,8 @@ CampusFix/
         └── pages/
 ```
 
+## User Roles
+
+- **Student:** Reports campus issues, views existing reports and supports issues through likes.
+- **Staff:** Views assigned issues and updates their status.
+- **Admin:** Manages staff accounts, assigns issues to staff and manages issue priorities.
